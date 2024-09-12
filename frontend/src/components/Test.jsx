@@ -1,33 +1,50 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import AvicciVid from "../assets/avicci-vid.mp4";
 import posterImg from "../assets/avicii-wallpaper-Aimg.jpg";
-import 'plyr/dist/plyr.css'; // Import Plyr CSS
-import Plyr from 'plyr'; // Import Plyr JS
+import 'mediaelement/build/mediaelementplayer.min.css';
+import 'mediaelement/build/mediaelement-and-player.min.js';
 
 export default function Test() {
+  const videoRef = useRef(null);
+  const playerRef = useRef(null); // Store the MediaElement player instance
+
   useEffect(() => {
-    // Initialize Plyr for the video element
-    const player = new Plyr('#player', {
-      controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+    const videoElement = videoRef.current;
+
+    // Initialize MediaElement.js
+    const player = new MediaElementPlayer(videoElement, {
+      features: ['playpause', 'progress', 'current', 'duration', 'volume', 'fullscreen'],
     });
+
+    // Store the player instance for later access
+    playerRef.current = player;
+
+    // Add keyboard listener for 'F' key to toggle fullscreen
+    const handleKeydown = (event) => {
+      if (event.key === 'f' || event.key === 'F') {
+        if (player.isFullScreen) {
+          player.exitFullScreen(); // Exit fullscreen if already in fullscreen
+        } else {
+          player.enterFullScreen(); // Enter fullscreen if not in fullscreen
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
 
     // Cleanup on component unmount
     return () => {
-      player.destroy();
+      player.remove();
+      document.removeEventListener('keydown', handleKeydown);
     };
   }, []);
 
   return (
-    <>
       <div>
-        <video id="player" playsInline controls data-poster={posterImg}>
+        <video ref={videoRef} controls data-poster={posterImg}>
           <source src={AvicciVid} type="video/mp4" />
-          {/* Optionally, provide a WebM version */}
-          {/* <source src={AvicciVid} type="video/webm" /> */}
-          <track kind="captions" label="English captions" src="/path/to/captions.vtt" srclang="en" default />
         </video>
       </div>
-    </>
   );
 }
