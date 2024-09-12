@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useRef } from 'react';
 import 'plyr/dist/plyr.css'; // Import Plyr CSS
 import Plyr from 'plyr'; // Import Plyr JS
